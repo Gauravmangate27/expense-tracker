@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Personal Expense Tracker
 
 A full-stack expense tracking application built with Python Flask backend, React frontend, and SQLite database. Track your daily expenses, categorize them, and visualize your spending patterns with interactive charts.
