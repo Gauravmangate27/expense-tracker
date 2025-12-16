@@ -9,6 +9,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 
     strategy:
       matrix:
@@ -40,7 +44,6 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./frontend/build
-        cname: expense-tracker.example.com
         force_orphan: true
 
     - name: Create deployment summary
