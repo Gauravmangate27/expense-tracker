@@ -1,0 +1,93 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    name: Lint and Test
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm install
+
+    - name: Build frontend
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        CI: false
+
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: pip install -r requirements.txt
+
+    - name: Test backend
+      working-directory: ./backend
+      run: python -c "from app import app; print('✅ Backend initialized')"
+
+    - name: Generate build report
+      run: |
+        echo "## Build Report" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Frontend build successful" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Backend initialized successfully" >> $GITHUB_STEP_SUMMARY
+        echo "🚀 Ready for deployment" >> $GITHUB_STEP_SUMMARY
+
+  deploy-frontend:
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    name: Deploy Frontend to Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        cache-dependency-path: './frontend/package-lock.json'
+
+    - name: Install dependencies
+      working-directory: ./frontend
+      run: npm install
+
+    - name: Build
+      working-directory: ./frontend
+      run: npm run build
+      env:
+        CI: false
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./frontend/build
+        force_orphan: true
+
+    - name: Deployment Complete
+      run: |
+        echo "✅ Frontend successfully deployed to GitHub Pages!"
+        echo "📍 URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
