@@ -217,6 +217,5 @@ This project is open source and available for educational purposes.
 ## Contributing
 
 Feel free to submit issues and enhancement requests!
-=======
-# expense-tracker
->>>>>>> 7c8f587c4571b0fc0f5d81d92b89e20a0e58fd63
+
+
